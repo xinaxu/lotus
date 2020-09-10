@@ -186,7 +186,7 @@ func (m *Miner) mine(ctx context.Context) {
 			}
 
 			// just wait for the beacon entry to become available before we select our final mining base
-			_, err = m.api.BeaconGetEntry(ctx, prebase.TipSet.Height()+prebase.NullRounds+1)
+			_, err = m.api.BeaconGetEntry(context.Background(), prebase.TipSet.Height()+prebase.NullRounds+1)
 			if err != nil {
 				log.Errorf("failed getting beacon entry: %s", err)
 				m.niceSleep(time.Second * 1)
