@@ -37,6 +37,7 @@ var ForksAtHeight = map[abi.ChainEpoch]func(context.Context, *StateManager, Exec
 	build.UpgradeBreezeHeight:   UpgradeFaucetBurnRecovery,
 	build.UpgradeIgnitionHeight: UpgradeIgnition,
 	build.UpgradeLiftoffHeight:  UpgradeLiftoff,
+	build.UpgradeRefuelHeight:   UpgradeRefuel,
 }
 
 func (sm *StateManager) handleStateForks(ctx context.Context, root cid.Cid, height abi.ChainEpoch, cb ExecCallback, ts *types.TipSet) (cid.Cid, error) {
@@ -427,6 +428,46 @@ func UpgradeLiftoff(ctx context.Context, sm *StateManager, cb ExecCallback, root
 	err = setNetworkName(ctx, sm.cs.Store(ctx), tree, "mainnet")
 	if err != nil {
 		return cid.Undef, xerrors.Errorf("setting network name: %w", err)
+	}
+
+	return tree.Flush(ctx)
+}
+
+func UpgradeRefuel(ctx context.Context, sm *StateManager, cb ExecCallback, root cid.Cid, ts *types.TipSet) (cid.Cid, error) {
+	store := sm.cs.Store(ctx)
+	tree, err := sm.StateTree(root)
+	if err != nil {
+		return cid.Undef, xerrors.Errorf("getting state tree: %w", err)
+	}
+
+	addr, err := address.NewFromString("t0122")
+	if err != nil {
+		return cid.Undef, xerrors.Errorf("getting address: %w", err)
+	}
+
+	act, err := tree.GetActor(addr)
+	if err != nil {
+		return cid.Undef, xerrors.Errorf("getting actor: %w", err)
+	}
+
+	if !act.IsMultisigActor() {
+		return cid.Undef, xerrors.Errorf("actor wasn't msig: %w", err)
+	}
+
+	var msigState multisig0.State
+	if err := store.Get(ctx, act.Head, &msigState); err != nil {
+		return cid.Undef, xerrors.Errorf("reading multisig state: %w", err)
+	}
+
+	msigState.StartEpoch = 0
+
+	act.Head, err = store.Put(ctx, &msigState)
+	if err != nil {
+		return cid.Undef, xerrors.Errorf("writing new multisig state: %w", err)
+	}
+
+	if err := tree.SetActor(addr, act); err != nil {
+		return cid.Undef, xerrors.Errorf("setting multisig actor: %w", err)
 	}
 
 	return tree.Flush(ctx)

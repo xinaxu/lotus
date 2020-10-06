@@ -24,6 +24,9 @@ const UpgradeSmokeHeight = 51000
 
 const UpgradeIgnitionHeight = 94000
 
+// TODO: Picked to be Wednesday morning 3:20 AM PST
+const UpgradeRefuelHeight = 125320
+
 // This signals our tentative epoch for mainnet launch. Can make it later, but not earlier.
 // Miners, clients, developers, custodians all need time to prepare.
 // We still have upgrades and state changes to do, but can happen after signaling timing here.

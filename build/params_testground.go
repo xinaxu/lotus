@@ -76,7 +76,8 @@ var (
 
 	UpgradeSmokeHeight    abi.ChainEpoch = -1
 	UpgradeIgnitionHeight abi.ChainEpoch = -2
-	UpgradeLiftoffHeight  abi.ChainEpoch = -3
+	UpgradeRefuelHeight   abi.ChainEpoch = -3
+	UpgradeLiftoffHeight  abi.ChainEpoch = -4
 
 	DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 		0: DrandMainnet,
