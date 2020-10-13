@@ -115,6 +115,8 @@ func (fm *FundMgr) getAddresses() []address.Address {
 // EnsureAvailable looks at the available balance in escrow for a given
 // address, and if less than the passed in amount, adds the difference
 func (fm *FundMgr) EnsureAvailable(ctx context.Context, addr, wallet address.Address, amt types.BigInt) (cid.Cid, error) {
+	log.Infof("ensure available amt; amt<%s>", amt)
+
 	idAddr, err := fm.api.StateLookupID(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return cid.Undef, err
@@ -134,14 +136,20 @@ func (fm *FundMgr) EnsureAvailable(ctx context.Context, addr, wallet address.Add
 	avail, ok := fm.available[idAddr]
 	if !ok {
 		avail = stateAvail
+		log.Infof("before not ok -- avail = stateAvail ; idAddr<%s> ; %s", idAddr, avail)
+	} else {
+		log.Infof("before ok -- avail = fm.available[%s] = %s", idAddr, avail)
 	}
 
 	toAdd := types.BigSub(amt, avail)
 	if toAdd.LessThan(types.NewInt(0)) {
 		toAdd = types.NewInt(0)
 	}
-	fm.available[idAddr] = big.Add(avail, toAdd)
 
+	log.Infof("set toAdd<%s> = amt <%s> - avail<%s>", toAdd, amt, avail)
+	log.Infof("modify fm.available[%s] = %s + %s", idAddr, avail, toAdd)
+	fm.available[idAddr] = big.Add(avail, toAdd)
+	log.Infof("after fm.available[%s] = %s", idAddr, fm.available[idAddr])
 	log.Infof("Funds operation w/ Expected Balance: %s, In State: %s, Requested: %s, Adding: %s", avail.String(), stateAvail.String(), amt.String(), toAdd.String())
 
 	if toAdd.LessThanEqual(big.Zero()) {
