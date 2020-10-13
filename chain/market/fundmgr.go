@@ -127,6 +127,8 @@ func (fm *FundMgr) EnsureAvailable(ctx context.Context, addr, wallet address.Add
 		return cid.Undef, err
 	}
 
+	log.Infof("StateMarketBalance: %v", bal)
+
 	stateAvail := types.BigSub(bal.Escrow, bal.Locked)
 
 	avail, ok := fm.available[idAddr]
@@ -143,6 +145,7 @@ func (fm *FundMgr) EnsureAvailable(ctx context.Context, addr, wallet address.Add
 	log.Infof("Funds operation w/ Expected Balance: %s, In State: %s, Requested: %s, Adding: %s", avail.String(), stateAvail.String(), amt.String(), toAdd.String())
 
 	if toAdd.LessThanEqual(big.Zero()) {
+		log.Info("toAdd is less than equal 0")
 		return cid.Undef, nil
 	}
 
@@ -160,9 +163,12 @@ func (fm *FundMgr) EnsureAvailable(ctx context.Context, addr, wallet address.Add
 		Params: params,
 	}, nil)
 	if err != nil {
+		log.Errorf("Push Message failed; amount<%s>", toAdd.String())
 		fm.available[idAddr] = avail
 		return cid.Undef, err
 	}
+
+	log.Infof("Push Message success; cid<%s> amount<%s>", smsg.Cid(), toAdd.String())
 
 	return smsg.Cid(), nil
 }
