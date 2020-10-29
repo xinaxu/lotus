@@ -1,0 +1,48 @@
+# Default config:
+[API]
+#  ListenAddress = "/ip4/127.0.0.1/tcp/2345/http"
+#  RemoteListenAddress = "127.0.0.1:2345"
+#  Timeout = "30s"
+#
+[Libp2p]
+#  ListenAddresses = ["/ip4/0.0.0.0/tcp/0", "/ip6/::/tcp/0"]
+#  AnnounceAddresses = []
+#  NoAnnounceAddresses = []
+#  ConnMgrLow = 150
+#  ConnMgrHigh = 180
+#  ConnMgrGrace = "20s"
+#
+[Pubsub]
+#  Bootstrapper = false
+#  RemoteTracer = "/dns4/pubsub-tracer.filecoin.io/tcp/4001/p2p/QmTd6UvR47vUidRNZ1ZKXHrAFhqTJAD27rKL9XYghEKgKX"
+#
+[Dealmaking]
+#  ConsiderOnlineStorageDeals = true
+#  ConsiderOfflineStorageDeals = true
+#  ConsiderOnlineRetrievalDeals = true
+#  ConsiderOfflineRetrievalDeals = true
+#  PieceCidBlocklist = []
+  ExpectedSealDuration = "1h0m0s"
+#  Filter = ""
+#
+[Sealing]
+#  MaxWaitDealsSectors = 2
+#  MaxSealingSectors = 0
+#  MaxSealingSectorsForDeals = 0
+#  WaitDealsDelay = "6h0m0s"
+#
+[Storage]
+#  ParallelFetchLimit = 10
+#  AllowAddPiece = true
+#  AllowPreCommit1 = true
+#  AllowPreCommit2 = true
+#  AllowCommit = true
+#  AllowUnseal = true
+#
+[Fees]
+#  MaxPreCommitGasFee = "0.05 FIL"
+#  MaxCommitGasFee = "0.05 FIL"
+#  MaxWindowPoStGasFee = "50 FIL"
+#  MaxPublishDealsFee = "0.030303030303030303 FIL"
+#  MaxMarketBalanceAddFee = "0.01 FIL"
+#
