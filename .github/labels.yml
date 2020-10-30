@@ -177,16 +177,16 @@
 ###
 - name: P0
   color: dd362a
-  description: "P0: Critical Blocker"
+  description: "P0: Major issue that trumps everything else"
 - name: P1
   color: ce8048
-  description: "P1: Must be resolved"
+  description: "P1: Significant need that pushes other issues to the back"
 - name: P2
   color: dbd81a
-  description: "P2: Should be resolved"
+  description: "P2: Normal workload"
 - name: P3
   color: 9fea8f
-  description: "P3: Might get resolved"
+  description: "P3: Nice-to-have that we will eventually implement"
 
 ###
 ### Hints
