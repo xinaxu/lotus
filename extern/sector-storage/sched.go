@@ -378,6 +378,7 @@ func (sh *scheduler) trySched() {
 			}()
 
 			task := (*sh.schedQueue)[sqi]
+			preferredHost := GetSectorPreferredHostname(task.sector.Number)
 			needRes := ResourceTable[task.taskType][sh.spt]
 
 			task.indexHeap = sqi
@@ -408,6 +409,12 @@ func (sh *scheduler) trySched() {
 				}
 
 				if !ok {
+					continue
+				}
+
+				// Only allow host that is same as preferred one for task types of AP, PC1, PC2, C1, C2
+				if preferredHost != "" && preferredHost != worker.info.Hostname && sealtasks.TTUnseal.Less(task.taskType) {
+					log.Debugf("[Hack] Skipping worker host %s as the sector prefers %s for task type %s", worker.info.Hostname, preferredHost, task.taskType)
 					continue
 				}
 
@@ -471,6 +478,7 @@ func (sh *scheduler) trySched() {
 			}
 
 			log.Debugf("SCHED ASSIGNED sqi:%d sector %d task %s to window %d", sqi, task.sector.Number, task.taskType, wnd)
+			SetSectorPreferredHostname(task.sector.Number, sh.workers[wid].info.Hostname)
 
 			windows[wnd].allocated.add(wr, needRes)
 			// TODO: We probably want to re-sort acceptableWindows here based on new
