@@ -18,7 +18,7 @@ func SetSectorPreferredHostname(sectorID abi.SectorNumber, hostname string) {
 
 	err = ioutil.WriteFile(path, []byte(hostname), 0644)
 	if err != nil {
-		log.Errorf("[Hack] Writing file(%s) failed: %s", path, err.Error())
+//		log.Errorf("[Hack] Writing file(%s) failed: %s", path, err.Error())
 		return
 	}
 
@@ -30,7 +30,7 @@ func GetSectorPreferredHostname(sectorID abi.SectorNumber) string {
 
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Debugf("[Hack] Reading file(%s) failed: %s", path, err.Error())
+//		log.Debugf("[Hack] Reading file(%s) failed: %s", path, err.Error())
 		return ""
 	}
 
