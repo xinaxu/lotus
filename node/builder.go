@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	metricsi "github.com/ipfs/go-metrics-interface"
@@ -124,11 +125,12 @@ const (
 
 	HandleIncomingBlocksKey
 	HandleIncomingMessagesKey
-
+	HandleMigrateClientFundsKey
 	HandlePaymentChannelManagerKey
 
 	// miner
 	GetParamsKey
+	HandleMigrateProviderFundsKey
 	HandleDealsKey
 	HandleRetrievalKey
 	RunSectorServiceKey
@@ -138,6 +140,7 @@ const (
 	HeadMetricsKey
 	SettlePaymentChannelsKey
 	RunPeerTaggerKey
+	SetupFallbackBlockstoreKey
 
 	SetApiEndpointKey
 
@@ -292,14 +295,14 @@ func Online() Option {
 			Override(new(retrievalmarket.RetrievalClient), modules.RetrievalClient),
 			Override(new(dtypes.ClientDatastore), modules.NewClientDatastore),
 			Override(new(dtypes.ClientDataTransfer), modules.NewClientGraphsyncDataTransfer),
-			Override(new(modules.ClientDealFunds), modules.NewClientDealFunds),
 			Override(new(storagemarket.StorageClient), modules.StorageClient),
 			Override(new(storagemarket.StorageClientNode), storageadapter.NewClientNodeAdapter),
 			Override(new(beacon.Schedule), modules.RandomSchedule),
 
 			Override(new(*paychmgr.Store), paychmgr.NewStore),
 			Override(new(*paychmgr.Manager), paychmgr.NewManager),
-			Override(new(*market.FundMgr), market.StartFundManager),
+			Override(new(*market.FundManager), market.NewFundManager),
+			Override(HandleMigrateClientFundsKey, modules.HandleMigrateClientFunds),
 			Override(HandlePaymentChannelManagerKey, paychmgr.HandleManager),
 			Override(SettlePaymentChannelsKey, settler.SettlePaymentChannels),
 		),
@@ -363,9 +366,9 @@ func Online() Option {
 			Override(new(*storedask.StoredAsk), modules.NewStorageAsk),
 			Override(new(dtypes.StorageDealFilter), modules.BasicDealFilter(nil)),
 			Override(new(dtypes.RetrievalDealFilter), modules.RetrievalDealFilter(nil)),
-			Override(new(modules.ProviderDealFunds), modules.NewProviderDealFunds),
 			Override(new(storagemarket.StorageProvider), modules.StorageProvider),
 			Override(new(storagemarket.StorageProviderNode), storageadapter.NewProviderNodeAdapter(nil)),
+			Override(HandleMigrateProviderFundsKey, modules.HandleMigrateProviderFunds),
 			Override(HandleRetrievalKey, modules.HandleRetrieval),
 			Override(GetParamsKey, modules.GetParams),
 			Override(HandleDealsKey, modules.HandleDeals),
@@ -521,7 +524,13 @@ func Repo(r repo.Repo) Option {
 			Override(new(repo.LockedRepo), modules.LockedRepo(lr)), // module handles closing
 
 			Override(new(dtypes.MetadataDS), modules.Datastore),
-			Override(new(dtypes.ChainBlockstore), modules.ChainBlockstore),
+			Override(new(dtypes.ChainRawBlockstore), modules.ChainRawBlockstore),
+			Override(new(dtypes.ChainBlockstore), From(new(dtypes.ChainRawBlockstore))),
+
+			If(os.Getenv("LOTUS_ENABLE_CHAINSTORE_FALLBACK") == "1",
+				Override(new(dtypes.ChainBlockstore), modules.FallbackChainBlockstore),
+				Override(SetupFallbackBlockstoreKey, modules.SetupFallbackBlockstore),
+			),
 
 			Override(new(dtypes.ClientImportMgr), modules.ClientImportMgr),
 			Override(new(dtypes.ClientMultiDstore), modules.ClientMultiDatastore),
