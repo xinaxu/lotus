@@ -413,7 +413,7 @@ func (sh *scheduler) trySched() {
 				}
 
 				// Only allow host that is same as preferred one for task types of AP, PC1, PC2
-				if preferredHost != "" && preferredHost != worker.info.Hostname && sealtasks.TTUnseal.Less(task.taskType) {
+				if preferredHost != "" && preferredHost != worker.info.Hostname && sealtasks.TTCommit2.Less(task.taskType) {
 //					log.Debugf("[Hack] Skipping worker host %s as the sector prefers %s for task type %s", worker.info.Hostname, preferredHost, task.taskType)
 					continue
 				}
